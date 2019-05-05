@@ -2,9 +2,9 @@
 
 /*
  * Plugin Name: WooCommerce  Safepay Payment Gateway
- * Description: Take credit card payments on your store from Safepay payment gateway.
- * Author: PK SOL
- * Author URI: https://www.pksol.com
+ * Description: Accept Credit and Debit card payments on your store with our escrow solution.
+ * Author: Ziyad Parekh
+ * Author URI: https://www.getsafepay.com
  * Version: 1.0.1
  * / 
 
@@ -30,10 +30,10 @@ function safepay_init_gateway_class() {
  		public function __construct() {
  	
  			$this->id = 'safepay'; // payment gateway plugin ID
-			$this->icon = ''; // URL of the icon that will be displayed on checkout page near your gateway name
+			$this->icon = 'https://avatars2.githubusercontent.com/u/46500042?s=200&v=4'; // URL of the icon that will be displayed on checkout page near your gateway name
 			$this->has_fields = true; // in case you need a custom credit card form
-			$this->method_title = 'Safepay Gateway';
-			$this->method_description = 'Providing Security is our Passion Thank you for your interest in SAFEPay. This system makes it easy for you to manage your own payment account'; // will be displayed on the options page
+			$this->method_title = 'Safepay Checkout';
+			$this->method_description = 'Configure our secure payments solution and easily start accepting credit and debit cards globally'; // will be displayed on the options page
 			 
 			// gateways can support subscriptions, refunds, saved payment methods,
 			$this->supports = array(
@@ -63,7 +63,7 @@ function safepay_init_gateway_class() {
  			$this->form_fields = array(
  					'enabled' => array(
  						'title'       => 'Enable/Disable',
- 						'label'       => 'Enable Safepay Gateway',
+ 						'label'       => 'Enable Safepay Checkout',
  						'type'        => 'checkbox',
  						'description' => '',
  						'default'     => 'no'
@@ -71,30 +71,30 @@ function safepay_init_gateway_class() {
  					'title' => array(
  						'title'       => 'Title',
  						'type'        => 'text',
- 						'description' => 'This controls the title which the user sees during checkout.',
- 						'default'     => 'Credit Card',
+ 						'description' => 'This controls the title your user sees during checkout.',
+ 						'default'     => 'Safepay Checkout',
  						'desc_tip'    => true,
  					),
  					'description' => array(
  						'title'       => 'Description',
  						'type'        => 'textarea',
- 						'description' => 'This controls the description which the user sees during checkout.',
- 						'default'     => 'Pay with your credit card via our super-cool payment gateway.',
+ 						'description' => 'This controls the description your user sees during checkout.',
+ 						'default'     => 'Securely pay to an escrow with your credit or debit card.',
  					),
  					'devmode' => array(
  						'title'       => 'Development mode',
  						'label'       => 'Enable Development Mode',
  						'type'        => 'checkbox',
- 						'description' => 'Place the payment gateway in Development mode using Dev API key.',
+ 						'description' => 'Place the payment gateway in Development mode using Sandbox API key.',
  						'default'     => 'yes',
  						'desc_tip'    => true,
  					),
- 					'local_key' => array(
- 						'title'       => 'Local Key',
+ 					'sandbox_key' => array(
+ 						'title'       => 'Sandbox key',
  						'type'        => 'text'
  					),
- 					'dev_key' => array(
- 						'title'       => 'Dev Key',
+ 					'production_key' => array(
+ 						'title'       => 'Production key',
  						'type'        => 'text'
  					),
  				);
@@ -117,20 +117,20 @@ function safepay_init_gateway_class() {
 				$env = '';
 
 				if ($safepaySettings['devmode'] = 'yes') {
-					$env = 'dev';
+					$env = 'sandbox';
 				} else {
-					$env = 'local';
+					$env = 'production';
 				}
 
-				$devKey = $safepaySettings['dev_key'];
-				$localKey = $safepaySettings['local_key'];
+				$sandboxKey = $safepaySettings['sandbox_key'];
+				$productionKey = $safepaySettings['production_key'];
 				$currency_safePay = get_woocommerce_currency();
 
 				$totalPrice = WC()->cart->total;
 
 				echo "
 
-				<script src='https://storage.googleapis.com/safepayobjects/api/safepay-checkout.min.js'></script>
+				<script href='https://storage.googleapis.com/safepayobjects/api/safepay-checkout.min.js'></script>
 				<style>[id*='zoid-safepay-button'] {text-align: center;}</style>
 				<script id='safepay-script'>
 
@@ -199,8 +199,8 @@ function safepay_init_gateway_class() {
 					        amount: '".$totalPrice."',  
 
 					        client: {
-					            'local': '".$localKey."',
-					            'dev': '".$devKey."'
+					            'sandbox': '".$sandboxKey."',
+					            'production': '".$productionKey."'
 				        	},
 
 					        validate: function(actions) {
@@ -227,11 +227,11 @@ function safepay_init_gateway_class() {
 
 					        onClick: function() {
 								
-								if(isValid() == false) {
-									jQuery('#place_order').removeAttr('disabled');
-				    				jQuery('#place_order').trigger('click');
-									jQuery('#place_order').attr('disabled', 'disabled');
-								}
+										if(isValid() == false) {
+											jQuery('#place_order').removeAttr('disabled');
+						    				jQuery('#place_order').trigger('click');
+											jQuery('#place_order').attr('disabled', 'disabled');
+										}
 
 					        },
 
@@ -251,8 +251,8 @@ function safepay_init_gateway_class() {
 					        	jQuery('#token').attr('value', data.token);
 					        	jQuery('#tracker').attr('value', data.tracker);
 
-					            jQuery('#place_order').removeAttr('disabled');
-				    			jQuery('#place_order').trigger('click');
+					          jQuery('#place_order').removeAttr('disabled');
+				    				jQuery('#place_order').trigger('click');
 
 					        }
 
