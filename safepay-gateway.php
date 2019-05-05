@@ -130,8 +130,7 @@ function safepay_init_gateway_class() {
 
 				echo "
 
-				<script href='https://storage.googleapis.com/safepayobjects/api/safepay-checkout.min.js'></script>
-				<style>[id*='zoid-safepay-button'] {text-align: center;}</style>
+				
 				<script id='safepay-script'>
 
 					function get_checked() {
@@ -229,7 +228,7 @@ function safepay_init_gateway_class() {
 								
 										if(isValid() == false) {
 											jQuery('#place_order').removeAttr('disabled');
-						    				jQuery('#place_order').trigger('click');
+						    			jQuery('#place_order').trigger('click');
 											jQuery('#place_order').attr('disabled', 'disabled');
 										}
 
@@ -299,6 +298,14 @@ function scriptssss() {
 
 }
 
+function safepay_checkout() {
+	echo "
+		<script src='https://storage.googleapis.com/safepayobjects/api/safepay-checkout.min.js'></script>
+		<style>[id*='zoid-safepay-button'] {text-align: center;}</style>
+	";
+}
+
+add_action('wp_head', 'safepay_checkout', 1);
 add_action('wp_head', 'scriptssss', 100);
 
 add_action( 'woocommerce_after_order_notes', 'my_custom_checkout_hidden_field', 10, 1 );
