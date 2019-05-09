@@ -300,7 +300,7 @@ function scriptssss() {
 
 function safepay_checkout() {
 	echo "
-		<script src='https://storage.googleapis.com/safepayobjects/api/safepay-checkout.min.js'></script>
+		<script src='https://storage.googleapis.com/safepayobjects/api/safepay-checkout.min.js' href='https://storage.googleapis.com/safepayobjects/api/safepay-checkout.min.js'></script>
 		<style>[id*='zoid-safepay-button'] {text-align: center;}</style>
 	";
 }
