@@ -53,9 +53,38 @@ function safepay_init_gateway_class() {
 			$this->publishable_key = $this->testmode ? $this->get_option( 'test_publishable_key' ) : $this->get_option( 'publishable_key' );
 		 
 			// This action hook saves the settings
-			add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );		
+			add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
+
+			if ( ! $this->is_valid_for_use() ) {
+				$this->enabled = 'no';
+			}
  
  		}
+
+ 		public function is_valid_for_use() {
+			return in_array(
+				get_woocommerce_currency(),
+				apply_filters(
+					'woocommerce_paypal_supported_currencies',
+					array( 'AUD', 'CAD', 'USD', 'EUR', 'GBP', 'CNY', 'PKR' )
+				),
+				true
+			);
+		}
+
+		public function admin_options() {
+			if ( $this->is_valid_for_use() ) {
+				parent::admin_options();
+			} else {
+				?>
+				<div class="inline error">
+					<p>
+						<strong><?php esc_html_e( 'Gateway disabled', 'woocommerce' ); ?></strong>: <?php esc_html_e( 'Safepay does not support your store currency.', 'woocommerce' ); ?>
+					</p>
+				</div>
+				<?php
+			}
+		}
  
 		/* Plugin options, we deal with it in Step 3 too */
  		public function init_form_fields(){
