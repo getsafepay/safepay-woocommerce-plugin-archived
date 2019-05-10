@@ -196,6 +196,7 @@ function safepay_init_gateway_class() {
 
 					        env: '".$env."',
 					        amount: '".$totalPrice."',  
+					        currency: '".$currency_safePay."',
 
 					        client: {
 					            'sandbox': '".$sandboxKey."',
