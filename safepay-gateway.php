@@ -30,7 +30,7 @@ function safepay_init_gateway_class() {
  		public function __construct() {
  	
  			$this->id = 'safepay'; // payment gateway plugin ID
-			$this->icon = 'https://avatars2.githubusercontent.com/u/46500042?s=200&v=4'; // URL of the icon that will be displayed on checkout page near your gateway name
+			$this->icon = 'https://storage.googleapis.com/safepay-assets/safepay-logo.jpeg'; // URL of the icon that will be displayed on checkout page near your gateway name
 			$this->has_fields = true; // in case you need a custom credit card form
 			$this->method_title = 'Safepay Checkout';
 			$this->method_description = 'Configure our secure payments solution and easily start accepting credit and debit cards globally'; // will be displayed on the options page
@@ -330,7 +330,7 @@ function scriptssss() {
 
 function safepay_checkout() {
 	echo "
-		<script src='https://storage.googleapis.com/safepayobjects/api/safepay-checkout.min.js' href='https://storage.googleapis.com/safepayobjects/api/safepay-checkout.min.js'></script>
+		<script type='text/javascript' src='https://storage.googleapis.com/safepayobjects/api/safepay-checkout.min.js'></script>
 		<style>[id*='zoid-safepay-button'] {text-align: center;}</style>
 	";
 }
