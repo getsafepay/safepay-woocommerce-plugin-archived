@@ -145,7 +145,7 @@ function safepay_init_gateway_class() {
 
 				$env = '';
 
-				if ($safepaySettings['devmode'] = 'yes') {
+				if ($safepaySettings['devmode'] === 'yes') {
 					$env = 'sandbox';
 				} else {
 					$env = 'production';
@@ -194,19 +194,19 @@ function safepay_init_gateway_class() {
 					        	var textarea = jQuery(el).find('textarea');
 
 					        	if (input.length > 0 && input.val() == '') {
-					            	console.log('empty input', ell);
-					            	validation_s = false;
-					          	}
+				            	console.log('empty input', ell);
+				            	validation_s = false;
+				          	}
 
-					          	if (select.length > 0 && select.val() == '') {
-					            	console.log('empty select', ell);
-					            	validation_s = false;
-					          	}
+				          	if (select.length > 0 && select.val() == '') {
+				            	console.log('empty select', ell);
+				            	validation_s = false;
+				          	}
 
-					          	if (textarea.length > 0 && textarea.val() == '') {
-					            	console.log('empty textarea', ell);
-					            	validation_s = false;
-					          	}
+				          	if (textarea.length > 0 && textarea.val() == '') {
+				            	console.log('empty textarea', ell);
+				            	validation_s = false;
+				          	}
 
 					        });
 
