@@ -1,4 +1,4 @@
-var indexx = 0;
+var is_safepay_button = false;
 jQuery(function(){
     jQuery( 'body' ).on( 'updated_checkout', function() {
         usingGateway();
@@ -80,24 +80,116 @@ function usingGateway(){
     }
 } 
 
+
+
+function validate_field(e) {
+	var $this             = jQuery( this ),
+		$parent           = $this.closest( '.form-row' ),
+		validated         = true,
+		validate_required = $parent.is( '.validate-required' ),
+		validate_email    = $parent.is( '.validate-email' ),
+		event_type        = e.type;
+
+	if ( 'input' === event_type ) {
+		$parent.removeClass( 'woocommerce-invalid woocommerce-invalid-required-field woocommerce-invalid-email woocommerce-validated' );
+	}
+
+	if ( 'validate' === event_type || 'change' === event_type ) {
+		if ( validate_required ) {
+			if ( 'checkbox' === $this.attr( 'type' ) && ! $this.is( ':checked' ) ) {
+				$parent.removeClass( 'woocommerce-validated' ).addClass( 'woocommerce-invalid woocommerce-invalid-required-field' );
+				validated = false;
+			} else if ( $this.val() === '' ) {
+				$parent.removeClass( 'woocommerce-validated' ).addClass( 'woocommerce-invalid woocommerce-invalid-required-field' );
+				validated = false;
+			}
+		}
+
+		if ( validate_email ) {
+			if ( $this.val() ) {
+				var pattern = new RegExp(/^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?$/i);
+
+				if ( ! pattern.test( $this.val()  ) ) {
+					$parent.removeClass( 'woocommerce-validated' ).addClass( 'woocommerce-invalid woocommerce-invalid-email' );
+					validated = false;
+				}
+			}
+		}
+
+		if ( validated ) {
+			$parent.removeClass( 'woocommerce-invalid woocommerce-invalid-required-field woocommerce-invalid-email' ).addClass( 'woocommerce-validated' );
+		}
+	}
+
+}
+
+
+
 function isValid() {
-	var validation_s = true;
-	jQuery('.validate-required').each(function(index, el) {
-		var ell = jQuery(el);
+	var validation_s = false;
+    var validations = [];
+    var fields = [];
+    jQuery('.validate-required').each(function(index, el) {
 		var input = jQuery(el).find('input');
 		var select = jQuery(el).find('select');
 		var textarea = jQuery(el).find('textarea');
-		if (input.length > 0 && input.val() == '') {
-			validation_s = false;
+
+		if (select.length > 0) {
+			fields.push(select);
 		}
-		if (select.length > 0 && select.val() == '') {
-			validation_s = false;
+		if (textarea.length > 0) {
+			fields.push(textarea);
 		}
-		if (textarea.length > 0 && textarea.val() == '') {
-			validation_s = false;
+		if (input.length > 0) {
+			fields.push(input);
 		}
 	});
-	return validation_s;
+	jQuery.each( fields, function( key, element ) {
+    	console.log(element);
+		var $this             = jQuery( element );
+		var $parent           = $this.closest( '.form-row' );
+		var validation_s      = true;
+		var	validate_required = $parent.is( '.validate-required' );
+		var validate_email    = $parent.is( '.validate-email' );
+		var event_type        = 'validate';
+		if ( 'validate' === event_type ) {
+			if ( validate_required ) {
+				if ( 'checkbox' === $this.attr( 'type' ) && ! $this.is( ':checked' ) ) {
+					$parent.removeClass( 'woocommerce-validated' ).addClass( 'woocommerce-invalid woocommerce-invalid-required-field' );
+					validation_s = false;
+					validations.push(validation_s);
+				} else if ( $this.val() === '' ) {
+					$parent.removeClass( 'woocommerce-validated' ).addClass( 'woocommerce-invalid woocommerce-invalid-required-field' );
+					validation_s = false;
+					validations.push(validation_s);
+				}
+			}
+			if ( validate_email ) {
+				if ( $this.val() ) {
+					var pattern = new RegExp(/^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?$/i);
+					if ( ! pattern.test( $this.val()  ) ) {
+						$parent.removeClass( 'woocommerce-validated' ).addClass( 'woocommerce-invalid woocommerce-invalid-email' );
+						validation_s = false;
+						validations.push(validation_s);
+					}
+				}
+			}
+			if ( validation_s ) {
+				validations.push(true);
+				$parent.removeClass( 'woocommerce-invalid woocommerce-invalid-required-field woocommerce-invalid-email' ).addClass( 'woocommerce-validated' );
+			}
+		}
+		console.log('validations > ' + validations);
+	});
+
+	if(jQuery.inArray(false, validations) != -1) {
+	    return false;
+	} else {
+		return true;
+	} 
+
+
+    
 }
 
 function onClickPlaceOrder(handler) {

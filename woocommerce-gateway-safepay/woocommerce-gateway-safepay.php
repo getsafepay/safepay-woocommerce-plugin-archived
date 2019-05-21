@@ -58,7 +58,6 @@ if ( !class_exists( 'WoocommerceGatewaySafepay' ) ) {
 			}
 			add_action( 'wp_ajax_get_cart_total', array( $this, 'ajax_get_cart_total' ) );
 			add_action( 'wp_ajax_nopriv_get_cart_total', array( $this, 'ajax_get_cart_total' ) );
-
 	    }
 
 	    public function ajax_get_cart_total() {

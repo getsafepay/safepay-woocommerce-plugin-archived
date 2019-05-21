@@ -109,114 +109,66 @@ class WC_Safepay_Gateway extends WC_Payment_Gateway {
 			}
 			echo $output;
 		}
-			/*
-			$env = '';
-			if ($safepay_settings['devmode'] === 'yes') {
-				$env = 'sandbox';
-			} else {
-				$env = 'production';
-			}
-			$sandboxKey = $safepay_settings['sandbox_key'];
-			$productionKey = $safepay_settings['production_key'];
-			$currency_safePay = get_woocommerce_currency();
-			$totalPrice = WC()->cart->total;
-			$output .= "
-				<script id='safepay-script'>  
-					indexx++;
-					if(indexx > 1) {
-
-						function isValid() {
-							var validation_s = true;
-							jQuery('.validate-required').each(function(index, el) {
-								var ell = jQuery(el);
-								var input = jQuery(el).find('input');
-								var select = jQuery(el).find('select');
-								var textarea = jQuery(el).find('textarea');
-								if (input.length > 0 && input.val() == '') {
-									validation_s = false;
-								}
-								if (select.length > 0 && select.val() == '') {
-									validation_s = false;
-								}
-								if (textarea.length > 0 && textarea.val() == '') {
-									validation_s = false;
-								}
-							});
-							return validation_s;
-						}
-
-					function onClickPlaceOrder(handler) {
-						document.querySelector('#place_order').addEventListener('click', handler);
-					}
-					function toggleButton(actions) {
-						return isValid() ? actions.enable() : actions.disable();
-					}
-
-					safepay.Button.render({
-						env: '".$env."',
-						amount: '".$totalPrice."',  
-						currency: '".$currency_safePay."',
-						client: {
-							'sandbox': '".$sandboxKey."',
-							'production': '".$productionKey."'
-						},
-						validate: function(actions) {
-							toggleButton(actions);
-							onClickPlaceOrder(function() {
-								toggleButton(actions);
-							});
-							jQuery('form[name=checkout] input').on('input', function (e) {
-								toggleButton(actions);
-							});
-							jQuery('form[name=checkout] select').on('change', function (e) {
-								toggleButton(actions);
-							});
-							jQuery('form[name=checkout] textarea').on('input', function (e) {
-								toggleButton(actions);
-							});
-						},
-						onClick: function() {
-							if(isValid() == false) {
-								jQuery('#place_order').removeAttr('disabled');
-								jQuery('#place_order').trigger('click');
-									jQuery('#place_order').attr('disabled', 'disabled');
-								}
-							},
-							payment: function (data, actions) {
-								return actions.payment.create({
-									transaction: {
-									amount: ".$totalPrice.",
-									currency: '".$currency_safePay."'
-									}
-								});
-							},
-							onCheckout: function(data, actions) {
-								jQuery('#reference').attr('value', data.reference);
-								jQuery('#token').attr('value', data.token);
-								jQuery('#tracker').attr('value', data.tracker);
-								jQuery('#place_order').removeAttr('disabled');
-								jQuery('#place_order').trigger('click');
-							}
-						}, '.payment_box.payment_method_safepay');
-					}
-
-				</script>
-			";
-			*/
 	}
 
 	public function process_payment( $order_id ) {
 		global $woocommerce;
 	 	$order = wc_get_order( $order_id );
-		$order->payment_complete();
-		$order->reduce_order_stock();
-		$woocommerce->cart->empty_cart();		
-		return array(
-			'result' => 'success',
-			'redirect' => $this->get_return_url( $order )
-		);
+
+		$tracker = get_post_meta( $order_id, '_tracker-order', true );
+		$is_valid = $this->validateCallback($tracker);
+		if($is_valid) {
+			$order->payment_complete();
+			$order->reduce_order_stock();
+			$woocommerce->cart->empty_cart();		
+			return array(
+				'result' => 'success',
+				'redirect' => $this->get_return_url( $order )
+			);
+		} else {
+			return array(
+			    'result'   => 'failure',
+			    'messages' => __( 'There was an error procesing the payment', 'woocommerce-gateway-safepay' ),
+			);
+		}
+
 	}
 
+	protected function validateCallback($tracker = false) {
+		if($tracker) {
+			$safepay_settings = get_option('woocommerce_safepay_settings');
+		    $payment_safepay_mode = $safepay_settings['devmode'] == 'yes' ? 'sandbox' : 'production';
+			if($payment_safepay_mode == 'sandbox') {
+				$url = "https://sandbox.api.getsafepay.com/order/v1/".$tracker;
+			} else {
+				$url = "https://api.getsafepay.com/order/v1/".$tracker;
+			}
+			$ch =  curl_init($url);
+		    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+		    curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+		    curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json'));
+		    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)');
+			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+			$result = curl_exec($ch);
+			if (curl_errno($ch)) { 
+			   return curl_error($ch);
+			}
+			curl_close($ch);
+			$result_array = json_decode($result);
+			if(empty($result_array->status->errors)) {
+				$state = $result_array->data->state;
+				if($state === "TRACKER_ENDED") {
+					return true;
+				} else {
+					return false;
+				}
+			} else {
+				return false;
+			}
+		} 
+	}
 
 
 }
