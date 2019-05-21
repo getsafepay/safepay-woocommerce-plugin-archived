@@ -14,9 +14,7 @@
  *
  */
 
-
 if ( !defined('ABSPATH') ) { exit; }
-
 
 if ( !class_exists( 'WoocommerceGatewaySafepay' ) ) {
 
@@ -98,10 +96,8 @@ if ( !class_exists( 'WoocommerceGatewaySafepay' ) ) {
 
 		function add_static_safepay_files() {
 	        if(is_checkout()) {
-
 				wp_register_script('safepayobjects-scripts', 'https://storage.googleapis.com/safepayobjects/api/safepay-checkout.min.js', array(), '1.0.0');
 		        wp_enqueue_script('safepayobjects-scripts');
-
 		        $safepay_settings = get_option('woocommerce_safepay_settings');
 		        $required_values = array();
 		        if($safepay_settings) {
@@ -116,7 +112,6 @@ if ( !class_exists( 'WoocommerceGatewaySafepay' ) ) {
 	        	wp_register_script('safepay-scripts', plugins_url('assets/js/safepay_script.js', __FILE__ ), array('jquery'), '1.0.0');
 	        	wp_localize_script( 'safepay-scripts', 'required_values', $required_values );
 	        	wp_enqueue_script('safepay-scripts');
-
 	        	wp_register_style('safepay-style', plugins_url('assets/css/safepay_style.css', __FILE__ ));
 	        	wp_enqueue_style('safepay-style');
 			}
@@ -160,6 +155,7 @@ if ( !class_exists( 'WoocommerceGatewaySafepay' ) ) {
 		}
 
 	}
+	
 }
 
 

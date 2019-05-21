@@ -21,10 +21,7 @@ class WC_Safepay_Gateway extends WC_Payment_Gateway {
 		$this->testmode = 'yes' === $this->get_option( 'testmode' );
 		$this->private_key = $this->testmode ? $this->get_option( 'test_private_key' ) : $this->get_option( 'private_key' );
 		$this->publishable_key = $this->testmode ? $this->get_option( 'test_publishable_key' ) : $this->get_option( 'publishable_key' );
-	 
-		// Saves the settings on form submit
 		add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
-
 		if ( ! $this->is_valid_for_use() ) {
 			$this->enabled = 'no';
 		}
@@ -98,7 +95,6 @@ class WC_Safepay_Gateway extends WC_Payment_Gateway {
 		);
  	}
 
-
 	public function payment_fields() {
 		$output = '';
 		$safepay_settings = get_option('woocommerce_safepay_settings');
@@ -114,7 +110,6 @@ class WC_Safepay_Gateway extends WC_Payment_Gateway {
 	public function process_payment( $order_id ) {
 		global $woocommerce;
 	 	$order = wc_get_order( $order_id );
-
 		$tracker = get_post_meta( $order_id, '_tracker-order', true );
 		$is_valid = $this->validateCallback($tracker);
 		if($is_valid) {
@@ -131,7 +126,6 @@ class WC_Safepay_Gateway extends WC_Payment_Gateway {
 			    'messages' => __( 'There was an error procesing the payment', 'woocommerce-gateway-safepay' ),
 			);
 		}
-
 	}
 
 	protected function validateCallback($tracker = false) {
@@ -169,6 +163,5 @@ class WC_Safepay_Gateway extends WC_Payment_Gateway {
 			}
 		} 
 	}
-
 
 }

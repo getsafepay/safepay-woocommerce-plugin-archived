@@ -1,4 +1,5 @@
-var is_safepay_button = false;
+var previous_total_price = 0;
+
 jQuery(function(){
     jQuery( 'body' ).on( 'updated_checkout', function() {
         usingGateway();
@@ -20,56 +21,56 @@ function usingGateway(){
 			type: 'post',
 			success: function(response) {
 				var totalPrice = response;
-				var enviroment = required_values.enviroment;
-				var sandboxKey = required_values.sandboxKey;
-				var productionKey = required_values.productionKey;
-				var currencySafePay = required_values.currencySafePay;
-				safepay.Button.render({
-					env: enviroment,
-					amount: parseFloat(totalPrice),  
-					currency: currencySafePay,
-					client: {
-						'sandbox': sandboxKey,
-						'production': productionKey
-					},
-					validate: function(actions) {
-						toggleButton(actions);
-						onClickPlaceOrder(function() {
+				// first time the button renders or the total has change as consequence.
+				if(previous_total_price != totalPrice || previous_total_price == 0) {
+					var enviroment = required_values.enviroment;
+					var sandboxKey = required_values.sandboxKey;
+					var productionKey = required_values.productionKey;
+					var currencySafePay = required_values.currencySafePay;
+					safepay.Button.render({
+						env: enviroment,
+						amount: parseFloat(totalPrice),  
+						currency: currencySafePay,
+						client: {
+							'sandbox': sandboxKey,
+							'production': productionKey
+						},
+						validate: function(actions) {
 							toggleButton(actions);
-						});
-						jQuery('form[name=checkout] input').on('input', function (e) {
-							toggleButton(actions);
-						});
-						jQuery('form[name=checkout] select').on('change', function (e) {
-							toggleButton(actions);
-						});
-						jQuery('form[name=checkout] textarea').on('input', function (e) {
-							toggleButton(actions);
-						});
-					},
-					onClick: function() {
-						if(isValid() == false) {
+							onClickPlaceOrder(function() {
+								toggleButton(actions);
+							});
+						},
+						onClick: function() {
+							if(isValid() == false) {
+								jQuery('#place_order').removeAttr('disabled');
+								jQuery('#place_order').trigger('click');
+								jQuery('#place_order').attr('disabled', 'disabled');
+							}
+						},
+						payment: function (data, actions) {
+							return actions.payment.create({
+								transaction: {
+								amount: parseFloat(totalPrice),
+								currency: currencySafePay
+								}
+							});
+						},
+						onCheckout: function(data, actions) {
+							jQuery('#reference').attr('value', data.reference);
+							jQuery('#token').attr('value', data.token);
+							jQuery('#tracker').attr('value', data.tracker);
 							jQuery('#place_order').removeAttr('disabled');
 							jQuery('#place_order').trigger('click');
-							jQuery('#place_order').attr('disabled', 'disabled');
 						}
-					},
-					payment: function (data, actions) {
-						return actions.payment.create({
-							transaction: {
-							amount: parseFloat(totalPrice),
-							currency: currencySafePay
-							}
-						});
-					},
-					onCheckout: function(data, actions) {
-						jQuery('#reference').attr('value', data.reference);
-						jQuery('#token').attr('value', data.token);
-						jQuery('#tracker').attr('value', data.tracker);
-						jQuery('#place_order').removeAttr('disabled');
-						jQuery('#place_order').trigger('click');
-					}
-				}, '.payment_box.payment_method_safepay');
+					}, '.payment_box.payment_method_safepay');
+
+					 previous_total_price = parseFloat(totalPrice);
+
+				} else {
+					// no need to render again. Checkout has change but there is no price changes.
+					previous_total_price = parseFloat(totalPrice);
+				}
 			},
 			error: function(xhr, ajaxOptions, thrownError) {
 				alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
@@ -80,20 +81,17 @@ function usingGateway(){
     }
 } 
 
-
-
-function validate_field(e) {
+function validate_field() {
 	var $this             = jQuery( this ),
 		$parent           = $this.closest( '.form-row' ),
 		validated         = true,
 		validate_required = $parent.is( '.validate-required' ),
 		validate_email    = $parent.is( '.validate-email' ),
-		event_type        = e.type;
+		event_type        = 'validate';
 
 	if ( 'input' === event_type ) {
 		$parent.removeClass( 'woocommerce-invalid woocommerce-invalid-required-field woocommerce-invalid-email woocommerce-validated' );
 	}
-
 	if ( 'validate' === event_type || 'change' === event_type ) {
 		if ( validate_required ) {
 			if ( 'checkbox' === $this.attr( 'type' ) && ! $this.is( ':checked' ) ) {
@@ -104,26 +102,20 @@ function validate_field(e) {
 				validated = false;
 			}
 		}
-
 		if ( validate_email ) {
 			if ( $this.val() ) {
 				var pattern = new RegExp(/^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?$/i);
-
 				if ( ! pattern.test( $this.val()  ) ) {
 					$parent.removeClass( 'woocommerce-validated' ).addClass( 'woocommerce-invalid woocommerce-invalid-email' );
 					validated = false;
 				}
 			}
 		}
-
 		if ( validated ) {
 			$parent.removeClass( 'woocommerce-invalid woocommerce-invalid-required-field woocommerce-invalid-email' ).addClass( 'woocommerce-validated' );
 		}
 	}
-
 }
-
-
 
 function isValid() {
 	var validation_s = false;
@@ -145,7 +137,6 @@ function isValid() {
 		}
 	});
 	jQuery.each( fields, function( key, element ) {
-    	console.log(element);
 		var $this             = jQuery( element );
 		var $parent           = $this.closest( '.form-row' );
 		var validation_s      = true;
@@ -179,17 +170,13 @@ function isValid() {
 				$parent.removeClass( 'woocommerce-invalid woocommerce-invalid-required-field woocommerce-invalid-email' ).addClass( 'woocommerce-validated' );
 			}
 		}
-		console.log('validations > ' + validations);
 	});
 
 	if(jQuery.inArray(false, validations) != -1) {
 	    return false;
 	} else {
 		return true;
-	} 
-
-
-    
+	}
 }
 
 function onClickPlaceOrder(handler) {
