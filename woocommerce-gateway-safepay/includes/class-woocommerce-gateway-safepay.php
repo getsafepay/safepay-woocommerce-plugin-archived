@@ -18,14 +18,15 @@ class WC_Safepay_Gateway extends WC_Payment_Gateway {
 		$this->title = $this->get_option( 'title' );
 		$this->description = $this->get_option( 'description' );
 		$this->enabled = $this->get_option( 'enabled' );
-		$this->testmode = 'yes' === $this->get_option( 'testmode' );
-		$this->private_key = $this->testmode ? $this->get_option( 'test_private_key' ) : $this->get_option( 'private_key' );
-		$this->publishable_key = $this->testmode ? $this->get_option( 'test_publishable_key' ) : $this->get_option( 'publishable_key' );
-		add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
+		$this->devmode = 'yes' === $this->get_option( 'devmode' );
+		if ( is_admin() ) {
+			add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ), 10, 1 );
+		}
 		if ( ! $this->is_valid_for_use() ) {
 			$this->enabled = 'no';
 		}
 	}
+	
 
 	public function is_valid_for_use() {
 		return in_array(
