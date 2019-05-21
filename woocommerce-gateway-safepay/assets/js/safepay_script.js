@@ -1,4 +1,4 @@
-var previous_total_price = 0;
+var index = 0;
 
 jQuery(function(){
     jQuery( 'body' ).on( 'updated_checkout', function() {
@@ -21,62 +21,64 @@ function usingGateway(){
 			type: 'post',
 			success: function(response) {
 				var totalPrice = response;
-				// first time the button renders or the total has change as consequence.
-				if(previous_total_price != totalPrice || previous_total_price == 0) {
-					var enviroment = required_values.enviroment;
-					var sandboxKey = required_values.sandboxKey;
-					var productionKey = required_values.productionKey;
-					var currencySafePay = required_values.currencySafePay;
-					safepay.Button.render({
-						env: enviroment,
-						amount: parseFloat(totalPrice),  
-						currency: currencySafePay,
-						client: {
-							'sandbox': sandboxKey,
-							'production': productionKey
-						},
-						validate: function(actions) {
+				var enviroment = required_values.enviroment;
+				var sandboxKey = required_values.sandboxKey;
+				var productionKey = required_values.productionKey;
+				var currencySafePay = required_values.currencySafePay;
+				safepay.Button.render({
+					env: enviroment,
+					amount: parseFloat(totalPrice),  
+					currency: currencySafePay,
+					client: {
+						'sandbox': sandboxKey,
+						'production': productionKey
+					},
+					validate: function(actions) {
+						toggleButton(actions);
+						onClickPlaceOrder(function() {
 							toggleButton(actions);
-							onClickPlaceOrder(function() {
-								toggleButton(actions);
-							});
-						},
-						onClick: function() {
-							if(isValid() == false) {
-								jQuery('#place_order').removeAttr('disabled');
-								jQuery('#place_order').trigger('click');
-								jQuery('#place_order').attr('disabled', 'disabled');
-							}
-						},
-						payment: function (data, actions) {
-							return actions.payment.create({
-								transaction: {
-								amount: parseFloat(totalPrice),
-								currency: currencySafePay
-								}
-							});
-						},
-						onCheckout: function(data, actions) {
-							jQuery('#reference').attr('value', data.reference);
-							jQuery('#token').attr('value', data.token);
-							jQuery('#tracker').attr('value', data.tracker);
+						});
+			            jQuery('form[name=checkout] input').on('input', function (e) {
+	      					toggleButton(actions);
+			            });
+			            jQuery('form[name=checkout] select').on('change', function (e) {
+	      					toggleButton(actions);
+			            });
+			            jQuery('form[name=checkout] textarea').on('change', function (e) {
+	      					toggleButton(actions);
+			            });
+					},
+					onClick: function() {
+						if(isValid() == false) {
 							jQuery('#place_order').removeAttr('disabled');
 							jQuery('#place_order').trigger('click');
+							jQuery('#place_order').attr('disabled', 'disabled');
 						}
-					}, '.payment_box.payment_method_safepay');
+					},
+					payment: function (data, actions) {
+						return actions.payment.create({
+							transaction: {
+							amount: parseFloat(totalPrice),
+							currency: currencySafePay
+							}
+						});
+					},
+					onCheckout: function(data, actions) {
+						jQuery('#reference').attr('value', data.reference);
+						jQuery('#token').attr('value', data.token);
+						jQuery('#tracker').attr('value', data.tracker);
+						jQuery('#place_order').removeAttr('disabled');
+						jQuery('#place_order').trigger('click');
+					}
+				}, '#woocommerce-payment-option-safepay');
 
-					 previous_total_price = parseFloat(totalPrice);
-
-				} else {
-					// no need to render again. Checkout has change but there is no price changes.
-					previous_total_price = parseFloat(totalPrice);
-				}
 			},
 			error: function(xhr, ajaxOptions, thrownError) {
 				alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
 			}
 		});		
     } else {
+    	 jQuery('#woocommerce-payment-option-safepay').html('');
          jQuery('#place_order').removeAttr('disabled');
     }
 } 
@@ -135,7 +137,6 @@ function isValid() {
 			}
 		}
 	});
-
 	if(jQuery.inArray(false, validations) != -1) {
 	    return false;
 	} else {

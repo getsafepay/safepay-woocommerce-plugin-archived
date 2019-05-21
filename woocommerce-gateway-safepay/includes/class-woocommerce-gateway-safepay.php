@@ -102,6 +102,7 @@ class WC_Safepay_Gateway extends WC_Payment_Gateway {
 			if ( $safepay_settings['description'] ) {
 				$output .= wpautop( wp_kses_post( $safepay_settings['description'] ) );;
 				$output .= "<br>"; 
+				$output .= "<div id='woocommerce-payment-option-safepay'></div>"; 
 			}
 			echo $output;
 		}
