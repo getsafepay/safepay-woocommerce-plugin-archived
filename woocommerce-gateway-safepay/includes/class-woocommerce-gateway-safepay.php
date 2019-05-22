@@ -149,7 +149,7 @@ class WC_Safepay_Gateway extends WC_Payment_Gateway {
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
 			$result = curl_exec($ch);
 			if (curl_errno($ch)) { 
-			   return curl_error($ch);
+			   return false;
 			}
 			curl_close($ch);
 			$result_array = json_decode($result);
