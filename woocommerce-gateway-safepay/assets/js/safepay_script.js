@@ -6,8 +6,17 @@ jQuery(function(){
         jQuery('input[name=\"payment_method\"]').change(function(){
             usingGateway();
         });
+        ["first_name", "last_name", "phone", "email"].forEach(function (field) {
+        	jQuery("#billing_"+field).on("blur", function() {
+        		usingGateway();
+        	})
+        })
     });
 });
+
+function getValue(field) {
+	return jQuery("#billing_"+field).val();
+}
 
 function usingGateway(){
     if(jQuery('form[name="checkout"] input[name="payment_method"]:checked').val() == 'safepay'){
@@ -29,6 +38,12 @@ function usingGateway(){
 						env: enviroment,
 						amount: parseFloat(totalPrice),  
 						currency: currencySafePay,
+						customer: {
+							'first_name': getValue('first_name'),
+							'last_name': getValue('last_name'),
+							'phone': getValue('phone'),
+							'email': getValue('email'),
+						},
 						client: {
 							'sandbox': sandboxKey,
 							'production': productionKey
