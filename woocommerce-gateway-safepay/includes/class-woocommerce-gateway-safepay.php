@@ -33,7 +33,7 @@ class WC_Safepay_Gateway extends WC_Payment_Gateway {
 			get_woocommerce_currency(),
 			apply_filters(
 				'woocommerce_paypal_supported_currencies',
-				array( 'PKR', 'USD', 'GBP', 'EUR', 'AUD', 'CNY' )
+				array( 'PKR', 'USD' )
 			),
 			true
 		);
@@ -92,6 +92,14 @@ class WC_Safepay_Gateway extends WC_Payment_Gateway {
 				'title'       => __( 'Production key', 'woocommerce-gateway-safepay' ),
 				'type'        => 'text',
 				'required'      => true,
+			),
+			'passthrough' => array(
+				'title'       => __( 'Passthrough values', 'woocommerce-gateway-safepay' ),
+				'label'       => __( 'Enable Data Prefill on Safepay Checkout', 'woocommerce-gateway-safepay' ),
+				'type'        => 'checkbox',
+				'description' => __( 'Pass along customer information to Safepay Checkout to prefill user and billing fields', 'woocommerce-gateway-safepay' ),
+				'default'     => 'yes',
+				'desc_tip'    => true,
 			),
 		);
  	}
