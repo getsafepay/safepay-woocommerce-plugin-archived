@@ -6,26 +6,38 @@ jQuery(function(){
         jQuery('input[name=\"payment_method\"]').change(function(){
             usingGateway();
         });
-
-        ["first_name", "last_name", "phone", "email"].forEach(function (field) {
-        	jQuery("#billing_"+field).on("blur", function() {
-        		jQuery('#woocommerce-payment-option-safepay').html('');
-        		usingGateway();
-        	})
-        })
+        if (required_values.passthrough === true) {
+        	["first_name", "last_name", "phone", "email"].forEach(function (field) {
+	        	jQuery("#billing_"+field).on("blur", function() {
+	        		jQuery('#woocommerce-payment-option-safepay').html('');
+	        		usingGateway();
+	        	})
+	        })
+        }
     });
 });
 
 function getValue(field) {
+	if (required_values.passthrough === false) {
+		return ""
+	}
+	
 	return jQuery("#billing_"+field).val();
 }
 
+var isRequesting = false;
 function usingGateway(){
+		if (isRequesting === true) {
+			return;
+		}
+
     if(jQuery('form[name="checkout"] input[name="payment_method"]:checked').val() == 'safepay'){
     	jQuery('#place_order').attr('disabled', 'disabled');
 			var data = {
 				'action': 'get_cart_total',
 			};
+
+			isRequesting = true;
 			jQuery.ajax({
 				url: required_values.ajax_url,
 				data: data,
@@ -98,6 +110,7 @@ function usingGateway(){
 						}
 					}, '#woocommerce-payment-option-safepay');
 
+					isRequesting = false;
 				},
 				error: function(xhr, ajaxOptions, thrownError) {
 					alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);

@@ -105,6 +105,7 @@ if ( !class_exists( 'WoocommerceGatewaySafepay' ) ) {
 		        		'enviroment' => $safepay_settings['devmode'] == 'yes' ? 'sandbox' : 'production',
 		        		'sandboxKey' => $safepay_settings['sandbox_key'],
 		        		'productionKey' => $safepay_settings['production_key'],
+		        		'passthrough' => $safepay_settings['passthrough'] === 'yes' ? true : false,
 		        		'currencySafePay' => get_woocommerce_currency(),
 		        		'ajax_url' => admin_url('admin-ajax.php'),
 		        	);
