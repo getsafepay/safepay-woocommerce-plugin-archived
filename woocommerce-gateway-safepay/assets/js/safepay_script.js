@@ -6,7 +6,7 @@ jQuery(function(){
         jQuery('input[name=\"payment_method\"]').change(function(){
             usingGateway();
         });
-        if (required_values.passthrough === true) {
+        if (required_values.passthrough === "1") {
         	["first_name", "last_name", "phone", "email"].forEach(function (field) {
 	        	jQuery("#billing_"+field).on("blur", function() {
 	        		jQuery('#woocommerce-payment-option-safepay').html('');
@@ -18,10 +18,10 @@ jQuery(function(){
 });
 
 function getValue(field) {
-	if (required_values.passthrough === false) {
+	if (required_values.passthrough === "") {
 		return ""
 	}
-	
+
 	return jQuery("#billing_"+field).val();
 }
 
