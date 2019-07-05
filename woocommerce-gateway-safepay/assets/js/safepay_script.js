@@ -90,8 +90,8 @@ function isValid() {
     var create_account = jQuery("#createaccount").attr("checked");
     var shipping_address = jQuery("#ship-to-different-address-checkbox").attr("checked");
 
-    jQuery('.woocommerce-billing-fields__field-wrapper .validate-required').each(function(index, el) {
-			var input = jQuery(el).find('input');
+    function addFields(index, el) {
+    	var input = jQuery(el).find('input');
 			var select = jQuery(el).find('select');
 			var textarea = jQuery(el).find('textarea');
 
@@ -104,41 +104,21 @@ function isValid() {
 			if (input.length > 0) {
 				fields.push(input);
 			}
+    }
+
+    jQuery('.woocommerce-billing-fields__field-wrapper .validate-required').each(function(index, el) {
+			addFields(index, el)
 		});
 
     if (create_account === "checked") {
     	jQuery('.woocommerce-account-fields .validate-required').each(function(index, el) {
-				var input = jQuery(el).find('input');
-				var select = jQuery(el).find('select');
-				var textarea = jQuery(el).find('textarea');
-
-				if (select.length > 0) {
-					fields.push(select);
-				}
-				if (textarea.length > 0) {
-					fields.push(textarea);
-				}
-				if (input.length > 0) {
-					fields.push(input);
-				}
+				addFields(index, el)
 			});
     }
 
     if (shipping_address === "checked") {
     	jQuery('.woocommerce-shipping-fields__field-wrapper .validate-required').each(function(index, el) {
-				var input = jQuery(el).find('input');
-				var select = jQuery(el).find('select');
-				var textarea = jQuery(el).find('textarea');
-
-				if (select.length > 0) {
-					fields.push(select);
-				}
-				if (textarea.length > 0) {
-					fields.push(textarea);
-				}
-				if (input.length > 0) {
-					fields.push(input);
-				}
+				addFields(index, el)
 			});
     }
     
