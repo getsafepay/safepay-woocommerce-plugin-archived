@@ -9,6 +9,7 @@ jQuery(function(){
 
         ["first_name", "last_name", "phone", "email"].forEach(function (field) {
         	jQuery("#billing_"+field).on("blur", function() {
+        		jQuery('#woocommerce-payment-option-safepay').html('');
         		usingGateway();
         	})
         })
