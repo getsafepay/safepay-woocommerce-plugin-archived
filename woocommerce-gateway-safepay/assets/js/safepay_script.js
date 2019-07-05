@@ -6,6 +6,7 @@ jQuery(function(){
         jQuery('input[name=\"payment_method\"]').change(function(){
             usingGateway();
         });
+
         ["first_name", "last_name", "phone", "email"].forEach(function (field) {
         	jQuery("#billing_"+field).on("blur", function() {
         		usingGateway();
@@ -44,6 +45,15 @@ function usingGateway(){
 							'phone': getValue('phone'),
 							'email': getValue('email'),
 						},
+						billing: {
+                "name": getValue('first_name') + '-Billing Address',
+                "address_1": getValue('address_1'),
+                "address_2": getValue('address_2'),
+                "city": getValue('city'),
+                "province": getValue('state'),
+                "postal": getValue('postcode'),
+                "country": getValue('country')
+            },
 						client: {
 							'sandbox': sandboxKey,
 							'production': productionKey
