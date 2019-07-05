@@ -12,82 +12,85 @@ jQuery(function(){
 function usingGateway(){
     if(jQuery('form[name="checkout"] input[name="payment_method"]:checked').val() == 'safepay'){
     	jQuery('#place_order').attr('disabled', 'disabled');
-		var data = {
-			'action': 'get_cart_total',
-		};
-		jQuery.ajax({
-			url: required_values.ajax_url,
-			data: data,
-			type: 'post',
-			success: function(response) {
-				var totalPrice = response;
-				var enviroment = required_values.enviroment;
-				var sandboxKey = required_values.sandboxKey;
-				var productionKey = required_values.productionKey;
-				var currencySafePay = required_values.currencySafePay;
-				safepay.Button.render({
-					env: enviroment,
-					amount: parseFloat(totalPrice),  
-					currency: currencySafePay,
-					client: {
-						'sandbox': sandboxKey,
-						'production': productionKey
-					},
-					validate: function(actions) {
-						toggleButton(actions);
-						onClickPlaceOrder(function() {
+			var data = {
+				'action': 'get_cart_total',
+			};
+			jQuery.ajax({
+				url: required_values.ajax_url,
+				data: data,
+				type: 'post',
+				success: function(response) {
+					var totalPrice = response;
+					var enviroment = required_values.enviroment;
+					var sandboxKey = required_values.sandboxKey;
+					var productionKey = required_values.productionKey;
+					var currencySafePay = required_values.currencySafePay;
+					safepay.Button.render({
+						env: enviroment,
+						amount: parseFloat(totalPrice),  
+						currency: currencySafePay,
+						client: {
+							'sandbox': sandboxKey,
+							'production': productionKey
+						},
+						validate: function(actions) {
 							toggleButton(actions);
-						});
-			            jQuery('form[name=checkout] input').on('input', function (e) {
-	      					toggleButton(actions);
-			            });
-			            jQuery('form[name=checkout] select').on('change', function (e) {
-	      					toggleButton(actions);
-			            });
-			            jQuery('form[name=checkout] textarea').on('change', function (e) {
-	      					toggleButton(actions);
-			            });
-					},
-					onClick: function() {
-						if(isValid() == false) {
+							onClickPlaceOrder(function() {
+								toggleButton(actions);
+							});
+				            jQuery('form[name=checkout] input').on('input', function (e) {
+		      					toggleButton(actions);
+				            });
+				            jQuery('form[name=checkout] select').on('change', function (e) {
+		      					toggleButton(actions);
+				            });
+				            jQuery('form[name=checkout] textarea').on('change', function (e) {
+		      					toggleButton(actions);
+				            });
+						},
+						onClick: function() {
+							if(isValid() == false) {
+								jQuery('#place_order').removeAttr('disabled');
+								jQuery('#place_order').trigger('click');
+								jQuery('#place_order').attr('disabled', 'disabled');
+							}
+						},
+						payment: function (data, actions) {
+							return actions.payment.create({
+								transaction: {
+								amount: parseFloat(totalPrice),
+								currency: currencySafePay
+								}
+							});
+						},
+						onCheckout: function(data, actions) {
+							jQuery('#reference').attr('value', data.reference);
+							jQuery('#token').attr('value', data.token);
+							jQuery('#tracker').attr('value', data.tracker);
 							jQuery('#place_order').removeAttr('disabled');
 							jQuery('#place_order').trigger('click');
-							jQuery('#place_order').attr('disabled', 'disabled');
 						}
-					},
-					payment: function (data, actions) {
-						return actions.payment.create({
-							transaction: {
-							amount: parseFloat(totalPrice),
-							currency: currencySafePay
-							}
-						});
-					},
-					onCheckout: function(data, actions) {
-						jQuery('#reference').attr('value', data.reference);
-						jQuery('#token').attr('value', data.token);
-						jQuery('#tracker').attr('value', data.tracker);
-						jQuery('#place_order').removeAttr('disabled');
-						jQuery('#place_order').trigger('click');
-					}
-				}, '#woocommerce-payment-option-safepay');
+					}, '#woocommerce-payment-option-safepay');
 
-			},
-			error: function(xhr, ajaxOptions, thrownError) {
-				alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
-			}
-		});		
+				},
+				error: function(xhr, ajaxOptions, thrownError) {
+					alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+				}
+			});		
     } else {
     	 jQuery('#woocommerce-payment-option-safepay').html('');
-         jQuery('#place_order').removeAttr('disabled');
+       jQuery('#place_order').removeAttr('disabled');
     }
 } 
 
 function isValid() {
-	var validation_s = false;
+		var validation_s = false;
     var validations = [];
     var fields = [];
-    jQuery('.validate-required').each(function(index, el) {
+    var create_account = jQuery("#createaccount").attr("checked");
+    var shipping_address = jQuery("#ship-to-different-address-checkbox").attr("checked");
+
+    jQuery('.woocommerce-billing-fields__field-wrapper .validate-required').each(function(index, el) {
 			var input = jQuery(el).find('input');
 			var select = jQuery(el).find('select');
 			var textarea = jQuery(el).find('textarea');
@@ -98,10 +101,47 @@ function isValid() {
 			if (textarea.length > 0) {
 				fields.push(textarea);
 			}
-			if (input.length > 0 && input.attr("id") !== "account_password") {
+			if (input.length > 0) {
 				fields.push(input);
 			}
 		});
+
+    if (create_account === "checked") {
+    	jQuery('.woocommerce-account-fields .validate-required').each(function(index, el) {
+				var input = jQuery(el).find('input');
+				var select = jQuery(el).find('select');
+				var textarea = jQuery(el).find('textarea');
+
+				if (select.length > 0) {
+					fields.push(select);
+				}
+				if (textarea.length > 0) {
+					fields.push(textarea);
+				}
+				if (input.length > 0) {
+					fields.push(input);
+				}
+			});
+    }
+
+    if (shipping_address === "checked") {
+    	jQuery('.woocommerce-shipping-fields__field-wrapper .validate-required').each(function(index, el) {
+				var input = jQuery(el).find('input');
+				var select = jQuery(el).find('select');
+				var textarea = jQuery(el).find('textarea');
+
+				if (select.length > 0) {
+					fields.push(select);
+				}
+				if (textarea.length > 0) {
+					fields.push(textarea);
+				}
+				if (input.length > 0) {
+					fields.push(input);
+				}
+			});
+    }
+    
 		jQuery.each( fields, function( key, element ) {
 			var $this             = jQuery( element );
 			var $parent           = $this.closest( '.form-row' );
