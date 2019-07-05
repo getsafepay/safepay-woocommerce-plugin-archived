@@ -6,15 +6,38 @@ jQuery(function(){
         jQuery('input[name=\"payment_method\"]').change(function(){
             usingGateway();
         });
+        if (required_values.passthrough === "1") {
+        	["first_name", "last_name", "phone", "email"].forEach(function (field) {
+	        	jQuery("#billing_"+field).on("blur", function() {
+	        		jQuery('#woocommerce-payment-option-safepay').html('');
+	        		usingGateway();
+	        	})
+	        })
+        }
     });
 });
 
+function getValue(field) {
+	if (required_values.passthrough === "") {
+		return ""
+	}
+
+	return jQuery("#billing_"+field).val();
+}
+
+var isRequesting = false;
 function usingGateway(){
+		if (isRequesting === true) {
+			return;
+		}
+
     if(jQuery('form[name="checkout"] input[name="payment_method"]:checked').val() == 'safepay'){
     	jQuery('#place_order').attr('disabled', 'disabled');
 			var data = {
 				'action': 'get_cart_total',
 			};
+
+			isRequesting = true;
 			jQuery.ajax({
 				url: required_values.ajax_url,
 				data: data,
@@ -29,6 +52,21 @@ function usingGateway(){
 						env: enviroment,
 						amount: parseFloat(totalPrice),  
 						currency: currencySafePay,
+						customer: {
+							'first_name': getValue('first_name'),
+							'last_name': getValue('last_name'),
+							'phone': getValue('phone'),
+							'email': getValue('email'),
+						},
+						billing: {
+                "name": getValue('first_name') + '-Billing Address',
+                "address_1": getValue('address_1'),
+                "address_2": getValue('address_2'),
+                "city": getValue('city'),
+                "province": getValue('state'),
+                "postal": getValue('postcode'),
+                "country": getValue('country')
+            },
 						client: {
 							'sandbox': sandboxKey,
 							'production': productionKey
@@ -72,6 +110,7 @@ function usingGateway(){
 						}
 					}, '#woocommerce-payment-option-safepay');
 
+					isRequesting = false;
 				},
 				error: function(xhr, ajaxOptions, thrownError) {
 					alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
