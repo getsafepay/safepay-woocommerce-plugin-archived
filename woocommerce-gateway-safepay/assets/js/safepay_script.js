@@ -106,7 +106,7 @@ function isValid() {
 			}
     }
 
-    jQuery('.woocommerce-billing-fields .validate-required').each(function(index, el) {
+    jQuery('.woocommerce-billing-fields__field-wrapper .validate-required').each(function(index, el) {
 			addFields(index, el)
 		});
 
@@ -117,7 +117,7 @@ function isValid() {
     }
 
     if (shipping_address === "checked") {
-    	jQuery('.woocommerce-shipping-fields .validate-required').each(function(index, el) {
+    	jQuery('.woocommerce-shipping-fields__field-wrapper .validate-required').each(function(index, el) {
 				addFields(index, el)
 			});
     }
