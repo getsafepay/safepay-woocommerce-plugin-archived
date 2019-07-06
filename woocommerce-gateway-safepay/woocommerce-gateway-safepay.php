@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: WooCommerce Safepay Gateway
- * Plugin URI: https://www.getsafepay.com
+ * Plugin URI: https://github.com/getsafepay/safepay-woocommerce-plugin
  * Description: Accept Credit and Debit card payments on your store with our escrow solution.
  * Author: Ziyad Parekh
  * Author URI: https://www.getsafepay.com
