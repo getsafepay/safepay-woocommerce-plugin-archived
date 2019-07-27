@@ -119,17 +119,17 @@ if ( !class_exists( 'WoocommerceGatewaySafepay' ) ) {
 		}
 
 		public function safepay_display_admin_order_meta($order) {		    
-			$reference = get_post_meta( $order->id, '_reference-order', true );
-			$token = get_post_meta( $order->id, '_token-order', true );
-			$tracker = get_post_meta( $order->id, '_tracker-order', true );
+			$reference = get_post_meta( $order->get_id(), '_reference-order', true );
+			$token = get_post_meta( $order->get_id(), '_token-order', true );
+			$tracker = get_post_meta( $order->get_id(), '_tracker-order', true );
 			if($reference) {
-				echo '<p><strong>'.__('Reference', 'woocommerce-gateway-safepay').':</strong> ' . get_post_meta( $order->id, '_reference-order', true ) . '</p>';
+				echo '<p><strong>'.__('Reference', 'woocommerce-gateway-safepay').':</strong> ' . get_post_meta( $order->get_id(), '_reference-order', true ) . '</p>';
 			}
 			if($token) {
-			    echo '<p><strong>'.__('Token', 'woocommerce-gateway-safepay').':</strong> ' . get_post_meta( $order->id, '_token-order', true ) . '</p>';	
+			    echo '<p><strong>'.__('Token', 'woocommerce-gateway-safepay').':</strong> ' . get_post_meta( $order->get_id(), '_token-order', true ) . '</p>';	
 			}
 			if($tracker) {
-			    echo '<p><strong>'.__('Tracker', 'woocommerce-gateway-safepay').':</strong> ' . get_post_meta( $order->id, '_tracker-order', true ) . '</p>';
+			    echo '<p><strong>'.__('Tracker', 'woocommerce-gateway-safepay').':</strong> ' . get_post_meta( $order->get_id(), '_tracker-order', true ) . '</p>';
 			}
 		}
 
