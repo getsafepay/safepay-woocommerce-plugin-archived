@@ -8,7 +8,7 @@ class WC_Safepay_Gateway extends WC_Payment_Gateway {
 
 	public function __construct() {
 		$this->id = 'safepay';
-		$this->default_icon = 'https://storage.googleapis.com/safepay-assets/safepay-logo.svg';
+		$this->default_icon = 'https://storage.googleapis.com/safepay-assets/safepay-logo.jpeg';
 		$this->has_fields = true;
 		$this->method_title = 'Safepay Checkout';
 		$this->method_description = 'Configure our secure payments solution and easily start accepting credit and debit cards globally';
@@ -19,11 +19,11 @@ class WC_Safepay_Gateway extends WC_Payment_Gateway {
 		$this->description = $this->get_option( 'description' );
 		$this->enabled = $this->get_option( 'enabled' );
 		$this->devmode = 'yes' === $this->get_option( 'devmode' );
-		$this->icon = $this->get_option( 'icon' );
+		$this->icon = $this->get_option( 'logo_url' );
 		if ($this->icon === "") {
 			$this->icon = $this->default_icon;
 		}
-		
+
 		if ( is_admin() ) {
 			add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ), 10, 1 );
 		}
@@ -84,7 +84,7 @@ class WC_Safepay_Gateway extends WC_Payment_Gateway {
 				'title'       => __( 'Logo URL', 'woocommerce-gateway-safepay' ),
 				'type'        => 'text',
 				'description' => __( 'Overwrite the default Safepay logo shown next to the Safepay Checkout Button', 'woocommerce-gateway-safepay' ),
-				'default'     => __( 'Securely pay to an escrow with your credit or debit card.', 'woocommerce-gateway-safepay' ),
+				'default'     => __( '', 'woocommerce-gateway-safepay' ),
 			),
 			'devmode' => array(
 				'title'       => __( 'Development mode', 'woocommerce-gateway-safepay' ),
