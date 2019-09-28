@@ -160,6 +160,10 @@ function isValid() {
 				addFields(index, el)
 			});
     }
+
+    jQuery('.place-order .validate-required').each(function(index, el) {
+      addFields(index, el)
+    });
     
 		jQuery.each( fields, function( key, element ) {
 			var $this             = jQuery( element );
